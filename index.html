@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen Robotics with AI Sample Exam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .file-upload {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #3498db;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .file-label:hover {
+            background: #2980b9;
+        }
+
+        .exam-container {
+            display: none;
+            padding: 40px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .question-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            margin-bottom: 25px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .option-text {
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .answer-explanation {
+            display: none;
+            background: #e8f5e8;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .answer-explanation.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .explanation-text {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 30px 0;
+        }
+
+        .score-good {
+            color: #27ae60;
+        }
+
+        .score-average {
+            color: #f39c12;
+        }
+
+        .score-poor {
+            color: #e74c3c;
+        }
+
+        .results-details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 NextGen Robotics with AI Sample Exam</h1>
+            <p>Upload your CSV file to begin the examination</p>
+        </div>
+
+        <div class="file-upload" id="fileUpload">
+            <h3>Upload Questions CSV File</h3>
+            <p style="margin: 15px 0; color: #666;">Please select a CSV file containing your exam questions</p>
+            <div class="file-input-wrapper">
+                <input type="file" id="csvFile" class="file-input" accept=".csv" />
+                <label for="csvFile" class="file-label">Choose CSV File</label>
+            </div>
+            <div id="fileInfo"></div>
+        </div>
+
+        <div class="exam-container" id="examContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="question-info">
+                <span id="questionNumber">Question 1 of 10</span>
+                <span id="timeRemaining"></span>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="answer-explanation" id="answerExplanation">
+                    <div class="explanation-title">💡 Explanation:</div>
+                    <div class="explanation-text" id="explanationText"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="backBtn" onclick="previousQuestion()">⬅️ Back</button>
+                <div>
+                    <button class="btn btn-warning" id="checkBtn" onclick="checkAnswer()">🔍 Check Answer</button>
+                    <button class="btn btn-success" id="nextBtn" onclick="nextQuestion()">Next ➡️</button>
+                </div>
+                <button class="btn btn-danger" id="completeBtn" onclick="completeExam()">✅ Complete Exam</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="results-title">🎉 Exam Completed!</div>
+            <div class="score-display" id="scoreDisplay"></div>
+            <div class="results-details" id="resultsDetails"></div>
+            <button class="btn btn-primary" onclick="restartExam()">🔄 Take Again</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let answersChecked = [];
+
+        document.getElementById('csvFile').addEventListener('change', handleFileUpload);
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    parseCSV(e.target.result);
+                    document.getElementById('fileInfo').innerHTML = `
+                        <div style="color: #27ae60; margin-top: 15px;">
+                            ✅ File loaded successfully! ${questions.length} questions found.
+                            <button class="btn btn-success" onclick="startExam()" style="margin-left: 15px;">Start Exam</button>
+                        </div>
+                    `;
+                } catch (error) {
+                    document.getElementById('fileInfo').innerHTML = `
+                        <div class="error-message">
+                            ❌ Error parsing CSV file: ${error.message}
+                        </div>
+                    `;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length < 2) throw new Error('CSV file must have header and at least one question');
+            
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            
+            // Validate headers
+            const requiredHeaders = ['question', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'explanation'];
+            const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+            if (missingHeaders.length > 0) {
+                throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+            }
+
+            questions = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length !== headers.length) continue;
+                
+                const question = {};
+                headers.forEach((header, index) => {
+                    question[header] = values[index].trim();
+                });
+                
+                questions.push(question);
+            }
+            
+            if (questions.length === 0) {
+                throw new Error('No valid questions found in CSV file');
+            }
+            
+            userAnswers = new Array(questions.length).fill(null);
+            answersChecked = new Array(questions.length).fill(false);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function startExam() {
+            document.getElementById('fileUpload').style.display = 'none';
+            document.getElementById('examContainer').style.display = 'block';
+            currentQuestion = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (questions.length === 0) return;
+            
+            const question = questions[currentQuestion];
+            
+            // Update progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Update question info
+            document.getElementById('questionNumber').textContent = 
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+            
+            // Display question
+            document.getElementById('questionText').textContent = question.question;
+            
+            // Display options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            const options = ['A', 'B', 'C', 'D'];
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.onclick = () => selectOption(option);
+                
+                optionDiv.innerHTML = `
+                    <input type="radio" name="answer" value="${option}" ${userAnswers[currentQuestion] === option ? 'checked' : ''}>
+                    <span class="option-text">${option}. ${question[`option_${option.toLowerCase()}`]}</span>
+                `;
+                
+                if (userAnswers[currentQuestion] === option) {
+                    optionDiv.classList.add('selected');
+                }
+                
+                // Show correct/incorrect styling if answer was checked
+                if (answersChecked[currentQuestion]) {
+                    if (option === question.correct_answer.toUpperCase()) {
+                        optionDiv.classList.add('correct');
+                    } else if (option === userAnswers[currentQuestion] && option !== question.correct_answer.toUpperCase()) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                }
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Show/hide explanation
+            const explanationDiv = document.getElementById('answerExplanation');
+            if (answersChecked[currentQuestion]) {
+                explanationDiv.classList.add('show');
+                document.getElementById('explanationText').textContent = question.explanation;
+            } else {
+                explanationDiv.classList.remove('show');
+            }
+            
+            // Update button states
+            document.getElementById('backBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').disabled = currentQuestion === questions.length - 1;
+            document.getElementById('checkBtn').disabled = answersChecked[currentQuestion];
+        }
+
+        function selectOption(option) {
+            if (answersChecked[currentQuestion]) return; // Prevent changing after check
+            
+            userAnswers[currentQuestion] = option;
+            
+            // Update UI
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+                const radio = opt.querySelector('input[type="radio"]');
+                radio.checked = false;
+            });
+            
+            const selectedOption = document.querySelector(`input[value="${option}"]`);
+            selectedOption.checked = true;
+            selectedOption.closest('.option').classList.add('selected');
+        }
+
+        function checkAnswer() {
+            if (!userAnswers[currentQuestion]) {
+                alert('Please select an answer first!');
+                return;
+            }
+            
+            answersChecked[currentQuestion] = true;
+            
+            // Show correct styling
+            const correctAnswer = questions[currentQuestion].correct_answer.toUpperCase();
+            document.querySelectorAll('.option').forEach(option => {
+                const optionValue = option.querySelector('input').value;
+                if (optionValue === correctAnswer) {
+                    option.classList.add('correct');
+                } else if (optionValue === userAnswers[currentQuestion]) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Show explanation
+            const explanationDiv = document.getElementById('answerExplanation');
+            explanationDiv.classList.add('show');
+            document.getElementById('explanationText').textContent = questions[currentQuestion].explanation;
+            
+            // Disable check button
+            document.getElementById('checkBtn').disabled = true;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function completeExam() {
+            // Check if all questions are answered
+            const unanswered = userAnswers.some(answer => answer === null);
+            if (unanswered) {
+                if (!confirm('Some questions are not answered. Do you want to complete the exam anyway?')) {
+                    return;
+                }
+            }
+            
+            showResults();
+        }
+
+        function showResults() {
+            document.getElementById('examContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            // Calculate score
+            let correct = 0;
+            let attempted = 0;
+            
+            questions.forEach((question, index) => {
+                if (userAnswers[index] !== null) {
+                    attempted++;
+                    if (userAnswers[index] === question.correct_answer.toUpperCase()) {
+                        correct++;
+                    }
+                }
+            });
+            
+            const percentage = attempted > 0 ? Math.round((correct / questions.length) * 100) : 0;
+            
+            // Display score with styling
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.textContent = `${correct}/${questions.length} (${percentage}%)`;
+            
+            if (percentage >= 80) {
+                scoreDisplay.className = 'score-display score-good';
+            } else if (percentage >= 60) {
+                scoreDisplay.className = 'score-display score-average';
+            } else {
+                scoreDisplay.className = 'score-display score-poor';
+            }
+            
+            // Show detailed results
+            document.getElementById('resultsDetails').innerHTML = `
+                <h3>📊 Detailed Results</h3>
+                <p><strong>Total Questions:</strong> ${questions.length}</p>
+                <p><strong>Questions Attempted:</strong> ${attempted}</p>
+                <p><strong>Correct Answers:</strong> ${correct}</p>
+                <p><strong>Incorrect Answers:</strong> ${attempted - correct}</p>
+                <p><strong>Success Rate:</strong> ${percentage}%</p>
+                ${percentage >= 80 ? '<p style="color: #27ae60;"><strong>🎉 Excellent Performance!</strong></p>' :
+                  percentage >= 60 ? '<p style="color: #f39c12;"><strong>👍 Good Job!</strong></p>' :
+                  '<p style="color: #e74c3c;"><strong>📚 Keep Studying!</strong></p>'}
+            `;
+        }
+
+        function restartExam() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            answersChecked = new Array(questions.length).fill(false);
+            
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('examContainer').style.display = 'block';
+            
+            showQuestion();
+        }
+    </script>
+</body>
+</html>
